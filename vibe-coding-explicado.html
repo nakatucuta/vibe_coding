@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vibe Coding, explicado con calma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F4F6F5;
+    --paper-2: #EAEDEA;
+    --ink: #1B2621;
+    --ink-soft: #4B5A53;
+    --line: #D8DED9;
+
+    --c-plan: #2E5EAA;
+    --c-plan-bg: #E7EEFA;
+    --c-docs: #7A4FB5;
+    --c-docs-bg: #F1E9FA;
+    --c-dev: #1F8A70;
+    --c-dev-bg: #E4F4EF;
+    --c-test: #C97A2B;
+    --c-test-bg: #FBEEDE;
+    --c-deploy: #B23B5E;
+    --c-deploy-bg: #FBE7ED;
+
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); scroll-behavior: smooth; }
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.6;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14201A;
+      --paper-2: #1A2820;
+      --ink: #ECF2EE;
+      --ink-soft: #A9BBB1;
+      --line: #2A3B32;
+      --c-plan-bg: #1D2A42;
+      --c-docs-bg: #2A2038;
+      --c-dev-bg: #16302A;
+      --c-test-bg: #34281A;
+      --c-deploy-bg: #331F26;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14201A;
+    --paper-2: #1A2820;
+    --ink: #ECF2EE;
+    --ink-soft: #A9BBB1;
+    --line: #2A3B32;
+    --c-plan-bg: #1D2A42;
+    --c-docs-bg: #2A2038;
+    --c-dev-bg: #16302A;
+    --c-test-bg: #34281A;
+    --c-deploy-bg: #331F26;
+  }
+
+  h1, h2, h3 { font-family: 'Fraunces', serif; font-weight: 600; margin: 0 0 0.4em 0; color: var(--ink); }
+
+  code, .mono { font-family: 'IBM Plex Mono', monospace; }
+
+  header.hero {
+    padding: 3.5rem 1.5rem 2.5rem;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  header.hero .kicker {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    margin-bottom: 0.8rem;
+  }
+  header.hero h1 {
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    line-height: 1.15;
+  }
+  header.hero p.lede {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    max-width: 60ch;
+    margin-top: 1rem;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 1.5rem 5rem; }
+
+  /* --- Resumen --- */
+  .summary-card {
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1.6rem 1.6rem 1.8rem;
+    margin: 0 0 3rem;
+  }
+  .summary-card h2 { font-size: 1.3rem; margin-bottom: 1rem; }
+  .summary-card .big-idea {
+    font-size: 1.08rem;
+    padding: 0.9rem 1rem;
+    background: var(--paper);
+    border-left: 3px solid var(--ink);
+    margin-bottom: 1.3rem;
+  }
+  .phase-legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+  .phase-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.88rem;
+    padding: 0.5rem 0.7rem;
+    border-radius: 3px;
+  }
+  .phase-chip .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* --- Navegación de fases --- */
+  nav.phase-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 3rem;
+  }
+  nav.phase-nav a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    text-decoration: none;
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+  }
+
+  /* --- Fases --- */
+  section.phase {
+    margin-bottom: 3.2rem;
+    padding-left: 1.4rem;
+    border-left: 4px solid var(--phase-color, var(--ink));
+  }
+  section.phase .phase-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    text-transform: none;
+    color: var(--phase-color, var(--ink-soft));
+    margin-bottom: 0.3rem;
+  }
+  section.phase h2 {
+    font-size: 1.55rem;
+    color: var(--phase-color, var(--ink));
+  }
+  section.phase > .phase-intro {
+    color: var(--ink-soft);
+    margin: 0.6rem 0 1.6rem;
+    max-width: 62ch;
+  }
+
+  .point {
+    background: var(--phase-bg, var(--paper-2));
+    border-radius: 6px;
+    padding: 1.2rem 1.3rem;
+    margin-bottom: 1rem;
+  }
+  .point h3 {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+  }
+  .point p { margin: 0.5rem 0; color: var(--ink); }
+  .point p.detail { color: var(--ink-soft); }
+  .point .analogy {
+    margin-top: 0.7rem;
+    padding-top: 0.7rem;
+    border-top: 1px dashed var(--line);
+    font-size: 0.93rem;
+    color: var(--ink-soft);
+  }
+  .point .analogy b { color: var(--ink); }
+
+  ul.plain { margin: 0.5rem 0 0; padding-left: 1.2rem; }
+  ul.plain li { margin-bottom: 0.35rem; }
+
+  pre {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.9rem 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    margin: 0.7rem 0 0;
+  }
+  :root[data-theme="dark"] pre, @media (prefers-color-scheme: dark) { }
+
+  .flow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    background: var(--paper);
+    border: 1px dashed var(--line);
+    border-radius: 6px;
+    padding: 0.8rem 1rem;
+    margin-top: 0.6rem;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  footer {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+    border-top: 1px solid var(--line);
+  }
+
+  @media (max-width: 480px) {
+    section.phase { padding-left: 1rem; }
+    .point { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="kicker">GUÍA EXPLICADA · VIBE CODING</div>
+  <h1>Cómo construir software con IA sin que se te desordene todo</h1>
+  <p class="lede">Esta es la misma guía de antes, pero contada más despacio: qué significa cada parte, por qué existe y cómo se ve en la práctica. Cada bloque tiene un color según la etapa del proceso a la que pertenece.</p>
+</header>
+
+<div class="wrap">
+
+  <div class="summary-card">
+    <h2>Resumen rápido, antes de entrar en detalle</h2>
+    <div class="big-idea">
+      Si le pides a una IA que "construya tu app" de un solo golpe, ella improvisa y el proyecto se vuelve un caos difícil de arreglar. La guía propone lo contrario: primero piensas y escribes en papel qué vas a construir, luego le das esos documentos a la IA como "manual de instrucciones", y después avanzas de a una tarea pequeña por vez, probando y guardando el progreso en Git en cada paso.
+    </div>
+    <p style="color:var(--ink-soft); margin-top:0;">Todo el proceso se agrupa en cinco grandes momentos. Cada uno tiene su color aquí abajo, y ese mismo color aparece en el resto de la página para que sepas siempre en qué etapa estás:</p>
+    <div class="phase-legend">
+      <div class="phase-chip" style="background:var(--c-plan-bg); color:var(--c-plan);"><span class="dot" style="background:var(--c-plan);"></span> Planificación — decidir qué construir</div>
+      <div class="phase-chip" style="background:var(--c-docs-bg); color:var(--c-docs);"><span class="dot" style="background:var(--c-docs);"></span> Documentación — el "manual" para la IA</div>
+      <div class="phase-chip" style="background:var(--c-dev-bg); color:var(--c-dev);"><span class="dot" style="background:var(--c-dev);"></span> Desarrollo — construir de a poco</div>
+      <div class="phase-chip" style="background:var(--c-test-bg); color:var(--c-test);"><span class="dot" style="background:var(--c-test);"></span> Pruebas y revisión — confirmar que funciona</div>
+      <div class="phase-chip" style="background:var(--c-deploy-bg); color:var(--c-deploy);"><span class="dot" style="background:var(--c-deploy);"></span> Despliegue y monitoreo — publicarlo y cuidarlo</div>
+    </div>
+  </div>
+
+  <nav class="phase-nav">
+    <a href="#fase-plan">1. Planificación</a>
+    <a href="#fase-docs">2. Documentación</a>
+    <a href="#fase-dev">3. Desarrollo</a>
+    <a href="#fase-test">4. Pruebas</a>
+    <a href="#fase-deploy">5. Despliegue</a>
+  </nav>
+
+  <!-- ================= FASE 1: PLANIFICACIÓN ================= -->
+  <section class="phase" id="fase-plan" style="--phase-color: var(--c-plan); --phase-bg: var(--c-plan-bg);">
+    <div class="phase-label">ETAPA 1 DE 5</div>
+    <h2>Planificación: decide qué vas a construir antes de tocar la IA</h2>
+    <p class="phase-intro">Esta es la parte que casi todo el mundo se salta, y es justo la que evita el 80% de los problemas después. Aquí no escribes ni una línea de código: solo piensas y respondes preguntas.</p>
+
+    <div class="point">
+      <h3>Las cinco preguntas antes de abrir tu herramienta de IA</h3>
+      <p>La guía pide que respondas, en texto simple, estas preguntas: ¿qué problema resuelves?, ¿para quién es?, ¿cuál es el resultado que busca el usuario?, ¿cuál es lo mínimo indispensable para lanzar (el "MVP")?, y ¿qué cosas decides dejar fuera por ahora?</p>
+      <p class="detail">Lo importante de la última pregunta es que funciona como una cerca: le dice a la IA "no construyas esto todavía", porque si no se lo dices, ella tiende a agregar funciones extra por su cuenta (chat con IA, pagos, redes sociales) que no necesitas al inicio.</p>
+      <div class="analogy"><b>Es como planear un viaje:</b> antes de reservar vuelos, defines destino, presupuesto y qué NO vas a hacer en ese viaje. Sin eso, terminas gastando tiempo y dinero en cosas que no importaban.</div>
+    </div>
+
+    <div class="point">
+      <h3>Investigar antes de pedirle nada a la IA</h3>
+      <p>Antes de programar, mira qué usuarios tienen ese problema, qué aplicaciones ya existen que lo resuelven (competencia), y si es técnicamente viable (¿existen las APIs que necesitas?, ¿cuánto cuesta el hosting?, etc.).</p>
+      <p class="detail">Puedes usar la propia IA para investigar (ChatGPT, Perplexity, buscar en Google), pero para decisiones técnicas la guía recomienda confiar más en documentación oficial que en blogs sueltos.</p>
+    </div>
+
+    <div class="point">
+      <h3>Elegir la herramienta de IA correcta para tu proyecto</h3>
+      <p>No todas las herramientas sirven para lo mismo. La guía compara varias:</p>
+      <ul class="plain">
+        <li><b>Replit / Lovable / Bolt:</b> ideales para prototipos rápidos desde el navegador, sin instalar nada.</li>
+        <li><b>Cursor:</b> pensado para proyectos más grandes, con más control, trabajando en tu computadora.</li>
+        <li><b>Claude Code:</b> orientado a trabajar desde la terminal en bases de código grandes y tareas más complejas y autónomas.</li>
+      </ul>
+      <p class="detail">La recomendación para alguien que está aprendiendo en serio es un combo concreto: Cursor + Next.js + TypeScript + Tailwind CSS + Supabase (base de datos y login) + Git/GitHub + Vercel para publicar.</p>
+    </div>
+
+    <div class="point">
+      <h3>Preparar el entorno de trabajo</h3>
+      <p>Antes de crear el proyecto necesitas instalado: un editor (Cursor o VS Code), Git, Node.js, npm, y una cuenta de GitHub. Se verifica que todo esté bien instalado corriendo estos comandos en la terminal:</p>
+      <pre>node --version
+npm --version
+git --version</pre>
+    </div>
+  </section>
+
+  <!-- ================= FASE 2: DOCUMENTACIÓN ================= -->
+  <section class="phase" id="fase-docs" style="--phase-color: var(--c-docs); --phase-bg: var(--c-docs-bg);">
+    <div class="phase-label">ETAPA 2 DE 5</div>
+    <h2>Documentación: el "manual de instrucciones" para tu IA</h2>
+    <p class="phase-intro">Esta es la parte más distinta a como la mayoría de la gente usa la IA para programar, y es el corazón de toda la guía. En lugar de explicarle todo por chat cada vez, escribes un puñado de archivos de texto que la IA puede leer antes de tocar el código.</p>
+
+    <div class="point">
+      <h3>¿Por qué escribir documentos en vez de solo chatear?</h3>
+      <p>Una IA no recuerda tu proyecto de una conversación a otra (ni siempre dentro de la misma). Si cada vez le explicas todo de memoria, es fácil que se contradiga o se le olviden reglas importantes.</p>
+      <p class="detail">Al escribir esas reglas una vez en un archivo, simplemente le dices "lee este archivo antes de trabajar" y la IA parte siempre del mismo punto, sin importar cuántas conversaciones hayan pasado.</p>
+      <div class="analogy"><b>Es como un equipo de trabajo:</b> si cada persona nueva que entra tiene que preguntarte todo de nuevo, pierdes tiempo. Pero si tienes un manual del proyecto, la persona (o la IA) lo lee y ya sabe cómo comportarse.</div>
+    </div>
+
+    <div class="point">
+      <h3>Los archivos clave y qué responde cada uno</h3>
+      <ul class="plain">
+        <li><b>PRD.md</b> — ¿Qué construimos y por qué? (el problema, el usuario, las funciones principales)</li>
+        <li><b>ARCHITECTURE.md</b> — ¿Cómo va a funcionar por dentro? (qué tecnología usa cada parte)</li>
+        <li><b>DESIGN.md</b> — ¿Cómo se debe ver? (colores, tipografía, estilo de botones)</li>
+        <li><b>RULES.md</b> — ¿Qué cosas debe y no debe hacer la IA al programar?</li>
+        <li><b>TASKS.md</b> — ¿Qué se construye ahora y qué sigue después?</li>
+        <li><b>DECISIONS.md</b> — ¿Por qué elegimos esta tecnología y no otra? (para no cambiar de opinión sin querer más adelante)</li>
+        <li><b>MEMORY.md</b> — ¿En qué punto va el proyecto ahora mismo?</li>
+      </ul>
+      <p class="detail">No necesitas todos desde el día uno. La guía sugiere empezar solo con PRD, RULES, TASKS, README y un archivo de variables de entorno, y sumar el resto cuando el proyecto crezca.</p>
+    </div>
+
+    <div class="point">
+      <h3>Un ejemplo real de cómo se ve un PRD.md sencillo</h3>
+      <p>Esto define, en pocas líneas, el "qué" y el "por qué" de un proyecto (una app para que estudiantes organicen notas y tareas):</p>
+      <pre># Producto: StudentHub
+
+## Problema
+Los estudiantes no tienen un lugar centralizado
+para notas, tareas y fechas límite.
+
+## MVP
+- Registro e inicio de sesión
+- Panel de control
+- Crear, editar y eliminar notas
+- Crear tareas
+
+## Fuera de alcance (por ahora)
+- Pagos, tutor de IA, app móvil, feed social</pre>
+    </div>
+
+    <div class="point">
+      <h3>DESIGN.md evita que cada pantalla se vea de un estilo distinto</h3>
+      <p>Sin un archivo de diseño, es común que la IA genere una pantalla con tarjetas redondeadas, otra con tarjetas cuadradas, y botones distintos en cada vista, porque no tiene memoria de las decisiones visuales anteriores.</p>
+      <p class="detail">Definir de una vez colores, tipografía y estilo de componentes hace que todas las pantallas se sientan parte de la misma app.</p>
+    </div>
+  </section>
+
+  <!-- ================= FASE 3: DESARROLLO ================= -->
+  <section class="phase" id="fase-dev" style="--phase-color: var(--c-dev); --phase-bg: var(--c-dev-bg);">
+    <div class="phase-label">ETAPA 3 DE 5</div>
+    <h2>Desarrollo: construir de a una tarea pequeña por vez</h2>
+    <p class="phase-intro">Con el "manual" ya escrito, ahora sí empiezas a pedirle cosas a la IA. Pero el orden y el tamaño de lo que pides importa mucho más de lo que parece.</p>
+
+    <div class="point">
+      <h3>Primero que la IA lea, no que escriba</h3>
+      <p>El primer mensaje que le das a la IA no debería pedirle que programe. Debería pedirle que lea tus documentos (PRD, arquitectura, diseño, reglas y tareas) y te explique el plan antes de tocar nada.</p>
+      <div class="flow">Leer documentos → Entender el producto → Explicar el plan → (recién ahí) Escribir código</div>
+    </div>
+
+    <div class="point">
+      <h3>Una funcionalidad a la vez, no la app entera</h3>
+      <p>La diferencia entre un mal resultado y uno bueno casi siempre es el tamaño del pedido:</p>
+      <ul class="plain">
+        <li>❌ "Construye toda la aplicación."</li>
+        <li>➖ "Construye la autenticación." (todavía muy amplio)</li>
+        <li>✅ "Crea solo la pantalla de registro, con estos campos exactos, sin implementar el login todavía."</li>
+      </ul>
+      <p class="detail">Mientras más chico y concreto el pedido, menos espacio tiene la IA para malinterpretar o inventar cosas de más.</p>
+    </div>
+
+    <div class="point">
+      <h3>Construir "rebanadas verticales" en vez de capas completas</h3>
+      <p>En vez de terminar todo el frontend, luego todo el backend, y al final la base de datos, conviene construir un flujo completo de punta a punta con una sola función primero.</p>
+      <div class="flow">Registro → Login → Panel → Crear nota → Guardar → Mostrar</div>
+      <p class="detail">Así, si algo falla, sabes que el problema está en esa función específica y no tienes que revisar toda la app a la vez.</p>
+    </div>
+
+    <div class="point">
+      <h3>Un buen pedido a la IA tiene seis partes</h3>
+      <p>Contexto (qué es el proyecto), Tarea (qué hacer exactamente), Archivos (dónde tocar), Restricciones (qué no romper), Criterios de aceptación (cómo se sabe que quedó bien) y Pruebas (qué comprobar al final).</p>
+      <p class="detail">Escribir el pedido así, en partes claras, reduce muchísimo las idas y vueltas de "no, así no era".</p>
+    </div>
+
+    <div class="point">
+      <h3>Guardar el progreso con Git en cada avance</h3>
+      <p>Cada vez que algo funciona, se guarda con Git (<code>git add .</code>, luego <code>git commit</code>). Así, si la IA rompe algo más adelante, puedes volver atrás a la última versión que sí funcionaba.</p>
+      <div class="analogy"><b>Es como un punto de guardado en un videojuego:</b> si algo sale mal después, no tienes que empezar de cero, solo cargas el último guardado bueno.</div>
+    </div>
+  </section>
+
+  <!-- ================= FASE 4: PRUEBAS ================= -->
+  <section class="phase" id="fase-test" style="--phase-color: var(--c-test); --phase-bg: var(--c-test-bg);">
+    <div class="phase-label">ETAPA 4 DE 5</div>
+    <h2>Pruebas y revisión: no confíes solo en que "compiló"</h2>
+    <p class="phase-intro">Que el código no muestre errores no significa que funcione bien. Esta etapa consiste en verificar de verdad, con pasos concretos, antes de pasar a publicar.</p>
+
+    <div class="point">
+      <h3>Una cadena de verificaciones después de cada función</h3>
+      <div class="flow">Código → Revisión de estilo (lint) → Revisión de tipos → Pruebas unitarias → Pruebas de integración → Pruebas de extremo a extremo</div>
+      <p class="detail">Cada una detecta un tipo distinto de error: desde errores de escritura hasta que el flujo completo (por ejemplo, registrarse y crear una nota) funcione tal como lo haría un usuario real.</p>
+    </div>
+
+    <div class="point">
+      <h3>Pedirle a la IA que revise su propio trabajo contra los documentos</h3>
+      <p>En vez de asumir que todo salió bien, se le pide explícitamente que compare lo que hizo contra el PRD, la arquitectura, el diseño, las reglas y el plan de seguridad, y que reporte los problemas antes de corregir nada.</p>
+    </div>
+
+    <div class="point">
+      <h3>Cómo pedir ayuda cuando algo se rompe</h3>
+      <p>En vez de decir simplemente "arréglalo", la guía recomienda darle a la IA el error exacto, qué esperabas que pasara, qué pasó en realidad, y los pasos para reproducirlo. Luego, primero se le pide que explique la causa del problema, y solo después que aplique la solución más pequeña posible (sin tocar cosas que no tienen que ver).</p>
+      <div class="analogy"><b>Es como ir al médico:</b> mientras más detalles concretos das sobre el síntoma, más rápido y preciso es el diagnóstico.</div>
+    </div>
+  </section>
+
+  <!-- ================= FASE 5: DESPLIEGUE ================= -->
+  <section class="phase" id="fase-deploy" style="--phase-color: var(--c-deploy); --phase-bg: var(--c-deploy-bg);">
+    <div class="phase-label">ETAPA 5 DE 5</div>
+    <h2>Despliegue y monitoreo: publicarlo sin sustos</h2>
+    <p class="phase-intro">Aquí la app pasa de tu computadora al mundo real. La idea central es nunca usar producción (la versión que ven los usuarios reales) como tu primer lugar de pruebas.</p>
+
+    <div class="point">
+      <h3>El camino en cuatro escalones</h3>
+      <div class="flow">Local (tu compu) → Vista previa (una copia de prueba en internet) → QA (revisión final) → Producción (la versión real)</div>
+      <p class="detail">Cada escalón filtra errores antes de que lleguen a los usuarios reales.</p>
+    </div>
+
+    <div class="point">
+      <h3>Revisar una checklist antes de publicar</h3>
+      <p>La guía sugiere confirmar, antes de desplegar: que el registro, login y funciones principales funcionen; que se vea bien en móvil, tablet y escritorio; que no haya contraseñas o llaves secretas expuestas en el código; y que las pruebas y la compilación final pasen sin errores.</p>
+    </div>
+
+    <div class="point">
+      <h3>Variables de entorno: no todo ambiente usa los mismos datos</h3>
+      <p>Tu computadora, la vista previa y la producción real deben apuntar a bases de datos distintas, para que probar algo en tu compu nunca afecte los datos reales de tus usuarios.</p>
+      <pre># .env.example (se sube al repositorio, sin datos reales)
+DATABASE_URL=
+SUPABASE_URL=
+SUPABASE_ANON_KEY=</pre>
+      <p class="detail">Los valores reales van solo en tu archivo local (<code>.env.local</code>), que nunca se sube a GitHub.</p>
+    </div>
+
+    <div class="point">
+      <h3>Publicar no es el final: hay que monitorear</h3>
+      <p>Una vez publicada la app, el trabajo sigue: revisar si hay errores en producción, ver estadísticas de uso, tener copias de seguridad de la base de datos y estar atento a que el sitio no se caiga.</p>
+      <div class="flow">Desplegar → Monitorear → Recibir comentarios → Corregir → Volver a desplegar</div>
+    </div>
+
+    <div class="point">
+      <h3>Mantener los documentos actualizados</h3>
+      <p>A medida que el proyecto cambia, hay que actualizar TASKS.md, MEMORY.md y los demás archivos. Si la documentación queda desactualizada, la IA empieza a trabajar con información falsa sobre tu propio proyecto.</p>
+    </div>
+  </section>
+
+  <div class="point" style="background:var(--paper-2); border:1px solid var(--line);">
+    <h3 style="color:var(--ink);">El ciclo que se repite en cada funcionalidad nueva</h3>
+    <p>Todo el proceso, resumido en un solo ciclo que se repite una y otra vez por cada función que agregas:</p>
+    <div class="flow">Leer → Entender → Planificar → Implementar → Probar → Revisar → Corregir → Guardar (commit) → Actualizar documentación</div>
+  </div>
+
+</div>
+
+<footer>
+  Explicación ampliada, en español, de la guía "Vibe Coding: A Complete Beginner-to-Production Guide". Los ejemplos de código y estructura de carpetas provienen del documento original; las explicaciones, analogías y el resumen son una elaboración propia para facilitar la comprensión.
+</footer>
+
+</body>
+</html>
